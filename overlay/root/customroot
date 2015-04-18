@@ -1,0 +1,43 @@
+#!/bin/bash
+# Configure live iso
+set -e -u -x
+shopt -s extglob
+
+# Check if set in rc.conf?
+
+# Set locales
+sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
+locale-gen
+
+# Sudo to allow no password
+sed -i 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/g' /etc/sudoers
+chown -c root:root /etc/sudoers
+chmod -c 0440 /etc/sudoers
+
+# Hostname
+echo "springlinux" > /etc/hostname
+
+# Vconsole
+echo "KEYMAP=us" > /etc/vconsole.conf
+echo "FONT=" >> /etc/vconsole.conf
+
+# Locale
+echo "LANG=en_US.UTF-8" > /etc/locale.conf
+echo "LC_COLLATE=C" >> /etc/locale.conf
+
+# Set clock to UTC
+hwclock --systohc --utc
+
+# Timezone
+ln -sf /usr/share/zoneinfo/Canada/Montreal /etc/localtime
+
+# Remove gtk-docs
+rm -rf /usr/share/{doc,gtk-doc,info,gtk-2.0,gtk-3.0}
+
+# Clean locales
+cd /usr/share/locale
+rm -rf !(en_US|en_GB|en\@quot|locale.alias)
+
+# Remove gnome icons
+rm -rf /usr/share/icons/gnome
+

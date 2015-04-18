@@ -1,0 +1,97 @@
+## Archive Tools
+zip
+unzip
+p7zip
+xz
+lzop
+
+# File manager
+spacefm
+udevil
+
+# Text editor
+leafpad
+nano 
+
+# Sound
+alsa-utils
+
+# Window Manager Stuff
+openbox
+xdg-user-dirs
+tint2
+dmenu
+volumeicon
+lxdm
+
+# Xorg Extras
+fontconfig
+kbd
+
+# Extra Apps
+slock
+feh
+openssh
+ncdu
+tmux
+lxterminal
+wget
+firefox
+scrot
+lxde-icon-theme
+
+
+obconf
+lxappearance
+lxinput
+xrandr
+obmenu-generator
+conky
+
+# Network Tools
+tcl
+wpa_supplicant
+libsecret
+polkit
+rfkill
+NetworkManager
+network-manager-applet
+
+# Develop Tools
+sudo
+ntfs-3g
+rsync
+dosfstools
+htop 
+parted
+gptfdisk
+ddrescue
+dmraid
+
+# Intel microcode
+intel-ucode
+
+# Bootloader
+os-prober
+
+# xserver
+
+gparted
+lxsession
+
+xorg-minimal
+xorg-input-drivers
+xorg-video-drivers
+virtualbox-ose-guest
+setxkbmap
+xauth
+xinit
+cantarell-fonts
+dejavu-fonts-ttf
+
+# required packages for void linux from x86 image script
+dialog
+cryptsetup
+lvm2
+mdadm
+grub

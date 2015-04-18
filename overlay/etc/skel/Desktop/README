@@ -1,0 +1,15 @@
+VoidBang Linux
+
+We have created an iso that uses Void Linux as a base with its runit init system. Added many of the packages and features of ArchBang Linux (based on Archlinux)
+
+Currently we have working
+
+Sound
+Wired Net
+Autologin
+Dbus 
+X
+
+VoidBang team
+
+

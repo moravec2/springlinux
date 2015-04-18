@@ -1,0 +1,21 @@
+
+# panel
+(sleep 1s && tint2) &
+
+# Set wallpaper
+(sleep 1s && feh --bg-scale /usr/share/wallpapers/springlinux.png)  &
+
+# Enable as required
+#xbacklight -set 100 &
+#/usr/bin/synclient TouchpadOff=1 &
+#xxkb &
+setxkbmap us &
+
+(sleep 2 && spacefm -d) &
+(sleep 3 && nm-applet) &
+(sleep 3 && volumeicon) &
+(sleep 3 && conky) &
+
+
+
+

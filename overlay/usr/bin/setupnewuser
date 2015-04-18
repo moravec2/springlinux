@@ -1,0 +1,26 @@
+#!/bin/bash
+# setupnewuser script
+# rebuild by Mr Green
+# with help from Oliver ;-)
+
+UserName="$1"
+UserPassword="$2"
+
+# set password for vblive?
+echo "springlive:${UserPassword}" | chpasswd -c SHA512
+
+# move vblive too new user
+mv /home/springlive /home/${UserName} &> /dev/null
+chown -R ${UserName}:users /home/${UserName}
+chgrp ${UserName} /home/${UserName} &> /dev/null
+
+# find files in /etc /home/<user> change any that refer too vblive too new user
+find /etc -type f -exec sed -i "s/springlive/${UserName}/g" {} \;
+find /home/${UserName} -type f -exec sed -i "s/springlive/${UserName}/g" {} \;
+
+# remove installer from openbox menu
+sed -i "/springlinux-installer/,+1d" $TARGETDIR/home/${UserName}/.config/obmenu-generator/schema.pl
+
+# remove autologin from lxdm
+sed -i "/s/autologin/\#autologin/g" $TARGETDIR/home/${UserName}/etc/lxdm/lxdm.conf
+
