@@ -1,4 +1,4 @@
-require '/home/vblive/.config/obmenu-generator/config.pl';
+require '/home/live/.config/obmenu-generator/config.pl';
 
 our $SCHEMA = [
     {sep => 'VoidBang'},
