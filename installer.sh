@@ -42,7 +42,7 @@ FILESYSTEMS_DONE=
 SYSTEMD_INIT=
 
 TARGETDIR=/mnt/target
-LOG="$(pwd)/$(basename ${0})_error.log" # old version /dev/tty8
+LOG="/tmp/$(basename ${0})_error.log" # old version /dev/tty8
 CONF_FILE=/tmp/.void-installer.conf
 if [ ! -f $CONF_FILE ]; then
     touch -f $CONF_FILE
@@ -93,7 +93,7 @@ WIDGET_SIZE="10 70"
 DIALOG() {
     rm -f $ANSWER
     dialog --colors --keep-tite --no-shadow --no-mouse \
-        --backtitle "${BOLD}${WHITE}Void Linux installation -- http://www.voidlinux.eu/ (@@MKLIVE_VERSION@@)${RESET}" \
+        --backtitle "${BOLD}${WHITE}Spring Linux installation -- http://www.springlinux.org/ (@@MKLIVE_VERSION@@)${RESET}" \
         --cancel-label "Back" --aspect 20 "$@" 2>$ANSWER
     return $?
 }
@@ -261,7 +261,10 @@ ${BOLD}WARNING: /usr is not supported as a separate partition.${RESET}\n
 ${RESET}\n" 18 80
         if [ $? -eq 0 ]; then
             while true; do
-                clear; cfdisk $device; PARTITIONS_DONE=1; partx -a $device; partx -u $device
+                #clear
+				cfdisk $device 
+				PARTITIONS_DONE=1
+				#partx -a $device; partx -u $device
                 break
             done
         else
@@ -984,7 +987,7 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
     umount_filesystems
 
     # installed successfully.
-    DIALOG --yesno "${BOLD}Void Linux has been installed successfully!${RESET}\n
+    DIALOG --yesno "${BOLD}Spring Linux has been installed successfully!${RESET}\n
 Do you want to reboot the system?" ${YESNOSIZE}
     if [ $? -eq 0 ]; then
         shutdown -r now
@@ -1063,9 +1066,9 @@ fi
 # main()
 #
 DIALOG --title "${BOLD}${RED} VoidBang ... ${RESET}" --msgbox "\n
-Welcome to the VoidBang Linux installation. \
+Welcome to the Spring Linux installation. \
 The installation should be pretty straightforward, if you are in trouble \
-Come visit us at www.archbang.org (forums)" 16 80
+Come visit us at www.springlinux.org (forums)" 16 80
 
 SOURCE_DONE=1
 set_option SOURCE local

@@ -10,7 +10,7 @@ fi
 #/usr/bin/xdg-user-dirs-update
 
 # configure obmenu user
-sed -i 's/vblive/'$(whoami)'/' ~/.config/obmenu-generator/schema.pl \
+sed -i 's/live/'$(whoami)'/' ~/.config/obmenu-generator/schema.pl \
                              ~/.config/obmenu-generator/config.pl  
 
 exec /usr/bin/openbox-session > ~/.openbox_startup.log 2>&1

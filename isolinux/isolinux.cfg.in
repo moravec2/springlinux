@@ -3,6 +3,7 @@ PROMPT 0
 TIMEOUT 100
 ONTIMEOUT linux
 
+MENU TITLE Spring Linux
 MENU TABMSG Press ENTER to boot or TAB to edit a menu entry
 MENU AUTOBOOT BIOS default device boot in # second{,s}...
 MENU BACKGROUND @@SPLASHIMAGE@@
