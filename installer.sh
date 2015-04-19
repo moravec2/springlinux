@@ -938,46 +938,37 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
     set_hostname
     set_rootpassword
 	#set_userpassword
-	chroot $TARGETDIR /usr/bin/setupnewuser $(get_option USERNAME) $(get_option USERPASSWORD) >$LOG 2>&1
-    rm $TARGETDIR/usr/bin/setupnewuser
+#	chroot $TARGETDIR /usr/bin/setupnewuser $(get_option USERNAME) $(get_option USERPASSWORD) >$LOG 2>&1
+#    rm $TARGETDIR/usr/bin/setupnewuser
+
+#	add variable chroot
+	CRT="chroot $TARGETDIR"
+
+	UserName=$(get_option USERNAME)
+	UserPassword=$(get_option USERPASSWORD)
+
+#	set password for spring live
+	$CRT echo "live:${UserPassword}" | chpasswd -c SHA512
+
+# 	remove autologin for live user from lxdm
+ 	$CRT sed -i "/s/autologin=live/#autologin=live/g" /etc/lxdm/lxdm.conf
+
+# 	move /home/live too new user
+ 	$CRT mv /home/live /home/${UserName} &> /dev/null
+	$CRT chown -R ${UserName}:users /home/${UserName}
+	$CRT chgrp ${UserName} /home/${UserName} &> /dev/null
+
+# 	find files in /etc /home/<user> change any that refer too live too new user
+ 	$CRT find /etc -type f -exec sed -i "s/live/${UserName}/g" {} \;
+ 	$CRT find /home/${UserName} -type f -exec sed -i "s/live/${UserName}/g" {} \;
+
+# 	remove installer from openbox menu
+ 	$CRT sed -i "/springlinux-installer/,+1d" /home/${UserName}/.config/obmenu-generator/schema.pl
+
+
 
     # Copy /etc/skel files for root.
     cp $TARGETDIR/etc/skel/.[bix]* $TARGETDIR/root
-
-    # network settings for target
-
-# We are using NetworkManager so do not need this....
-
-#    if [ -n "$NETWORK_DONE" ]; then
-#        local net="$(get_option NETWORK)"
-#        set -- ${net}
-#        local _dev="$1" _type="$2" _ip="$3" _gw="$4" _dns1="$5" _dns2="$6"
-#        if [ -z "$_type" ]; then
-#            # network type empty??!!!
-#            :
-#        elif [ "$_type" = "dhcp" ]; then
-#            if [ -f /etc/wpa_supplicant/wpa_supplicant-${_dev}.conf ]; then
-#                cp /etc/wpa_supplicant/wpa_supplicant-${_dev}.conf $TARGETDIR/etc/wpa_supplicant
-#                if [ -n "$SYSTEMD_INIT" ]; then
-#                    chroot $TARGETDIR systemctl enable dhcpcd@${_dev}.service >$LOG 2>&1
-#                else
-#                    ln -s /etc/sv/dhcpcd-${_dev} $TARGETDIR/etc/runit/runsvdir/default/dhcpcd-${_dev}
-#                fi
-#            else
-#                enable_dhcpd
-#            fi
-#        elif [ -n "$dev" -a -n "$type" = "static" ]; then
-#            # static IP through dhcpcd.
-#            mv $TARGETDIR/etc/dhcpcd.conf $TARGETDIR/etc/dhdpcd.conf.orig
-#            echo "# Static IP configuration set by the void-installer for $_dev." \
-#                >$TARGETDIR/etc/dhcpcd.conf
-#            echo "interface $_dev" >>$TARGETDIR/etc/dhcpcd.conf
-#            echo "static ip_address=$_ip" >>$TARGETDIR/etc/dhcpcd.conf
-#            echo "static routers=$_gw" >>$TARGETDIR/etc/dhcpcd.conf
-#            echo "static domain_name_servers=$_dns1 $_dns2" >>$TARGETDIR/etc/dhcpcd.conf
-#            enable_dhcpd
-#        fi
-#    fi
 
     # install bootloader.
     set_bootloader
