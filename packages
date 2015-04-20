@@ -94,3 +94,6 @@ cryptsetup
 lvm2
 mdadm
 grub
+
+# Non free repo
+void-repo-nonfree
