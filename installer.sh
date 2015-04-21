@@ -24,7 +24,7 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #-
-# Modified for VoidBang by mrgreen <mrgreen@archbang.org>
+# Modified for VoidBang by mrgreen <mrgreen@springlinux.org>
 
 
 # Make sure we don't inherit these from env.
@@ -948,10 +948,10 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
 	UserPassword=$(get_option USERPASSWORD)
 
 #	set password for spring live
-	$CRT echo "live:${UserPassword}" | chpasswd -c SHA512
+	echo "live:${UserPassword}" | chpasswd -R $TARGETDIR -c SHA512
 
 # 	remove autologin for live user from lxdm
- 	$CRT sed -i "/s/autologin=live/#autologin=live/g" /etc/lxdm/lxdm.conf
+ 	$CRT sed -i "s/autologin=live/\#autologin=live/g" /etc/lxdm/lxdm.conf
 
 # 	move /home/live too new user
  	$CRT mv /home/live /home/${UserName} &> /dev/null
@@ -962,10 +962,9 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
  	$CRT find /etc -type f -exec sed -i "s/live/${UserName}/g" {} \;
  	$CRT find /home/${UserName} -type f -exec sed -i "s/live/${UserName}/g" {} \;
 
-# 	remove installer from openbox menu
+# 	remove installer from openbox menu and from new install....
  	$CRT sed -i "/springlinux-installer/,+1d" /home/${UserName}/.config/obmenu-generator/schema.pl
-
-
+	rm $TARGETDIR/usr/sbin/springlinux-installer
 
     # Copy /etc/skel files for root.
     cp $TARGETDIR/etc/skel/.[bix]* $TARGETDIR/root

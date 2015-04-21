@@ -118,8 +118,6 @@ install_packages() {
 
     if [ -x installer.sh ]; then
         install -Dm755 installer.sh $ROOTFS/usr/sbin/springlinux-installer
-    else
-        install -Dm755 /usr/sbin/void-installer $ROOTFS/usr/sbin/springlinux-installer
     fi
     # Cleanup and remove useless stuff.
     rm -rf $ROOTFS/var/cache/* $ROOTFS/run/* $ROOTFS/var/run/*

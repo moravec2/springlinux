@@ -6,8 +6,8 @@ shopt -s extglob
 # Check if set in rc.conf?
 
 # Set locales
-sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
-locale-gen
+#sed -i 's/#\(en_US\.UTF-8\)/\1/' /etc/locale.gen
+#locale-gen
 
 # Sudo to allow no password
 sed -i 's/# %wheel ALL=(ALL) NOPASSWD: ALL/%wheel ALL=(ALL) NOPASSWD: ALL/g' /etc/sudoers
@@ -18,8 +18,8 @@ chmod -c 0440 /etc/sudoers
 echo "springlinux" > /etc/hostname
 
 # Vconsole
-echo "KEYMAP=us" > /etc/vconsole.conf
-echo "FONT=" >> /etc/vconsole.conf
+#echo "KEYMAP=us" > /etc/vconsole.conf
+#echo "FONT=" >> /etc/vconsole.conf
 
 # Locale
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
