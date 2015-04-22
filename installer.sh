@@ -261,10 +261,10 @@ ${BOLD}WARNING: /usr is not supported as a separate partition.${RESET}\n
 ${RESET}\n" 18 80
         if [ $? -eq 0 ]; then
             while true; do
-                #clear
+                clear
 				cfdisk $device 
 				PARTITIONS_DONE=1
-				#partx -a $device; partx -u $device
+				partx -a $device; partx -u $device
                 break
             done
         else
@@ -467,7 +467,7 @@ set_rootpassword() {
 
 # need to figure username
 set_userpassword() {
-    echo "$(get_option USERNAME):$(get_option USERPASSWORD)" | chpasswd -R $TARGETDIR -c SHA512
+    echo "live:$(get_option USERPASSWORD)" | chpasswd -R $TARGETDIR -c SHA512
 }
 
 menu_bootloader() {
@@ -937,7 +937,7 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
     set_timezone
     set_hostname
     set_rootpassword
-	#set_userpassword
+	set_userpassword
 #	chroot $TARGETDIR /usr/bin/setupnewuser $(get_option USERNAME) $(get_option USERPASSWORD) >$LOG 2>&1
 #    rm $TARGETDIR/usr/bin/setupnewuser
 
@@ -948,7 +948,7 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
 	UserPassword=$(get_option USERPASSWORD)
 
 #	set password for spring live
-	echo "live:${UserPassword}" | chpasswd -R $TARGETDIR -c SHA512
+#	echo "live:${UserPassword}" | chpasswd -R $TARGETDIR -c SHA512
 
 # 	remove autologin for live user from lxdm
  	$CRT sed -i "s/autologin=live/\#autologin=live/g" /etc/lxdm/lxdm.conf
