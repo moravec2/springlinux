@@ -3,7 +3,7 @@
 (sleep 1s && tint2) &
 
 # Set wallpaper
-(sleep 1s && feh --bg-scale /usr/share/wallpapers/springlinux.jpg)  &
+(sleep 1s && feh --bg-scale /usr/share/wallpapers/woods.jpg)  &
 
 
 # Enable as required

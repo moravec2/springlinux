@@ -15,6 +15,8 @@ nano
 
 # Sound
 alsa-utils
+deadbeef
+libmad
 
 # Window Manager Stuff
 openbox
