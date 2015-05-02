@@ -40,7 +40,8 @@ lxterminal
 wget
 firefox
 scrot
-lxde-icon-theme
+#lxde-icon-theme
+mate-themes
 
 obconf
 lxappearance
