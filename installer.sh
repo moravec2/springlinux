@@ -938,8 +938,6 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
     set_hostname
     set_rootpassword
 	set_userpassword
-#	chroot $TARGETDIR /usr/bin/setupnewuser $(get_option USERNAME) $(get_option USERPASSWORD) >$LOG 2>&1
-#    rm $TARGETDIR/usr/bin/setupnewuser
 
 #	add variable chroot
 	CRT="chroot $TARGETDIR"
@@ -947,16 +945,13 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
 	UserName=$(get_option USERNAME)
 	UserPassword=$(get_option USERPASSWORD)
 
-#	set password for spring live
-#	echo "live:${UserPassword}" | chpasswd -R $TARGETDIR -c SHA512
-
 # 	remove autologin for live user from lxdm
  	$CRT sed -i "s/autologin=live/\#autologin=live/g" /etc/lxdm/lxdm.conf
 
 # 	move /home/live too new user
  	$CRT mv /home/live /home/${UserName} &> /dev/null
 	$CRT chown -R ${UserName}:users /home/${UserName}
-	$CRT chgrp ${UserName} /home/${UserName} &> /dev/null
+#	$CRT chgrp users /home/${UserName} &> /dev/null
 
 # 	find files in /etc /home/<user> change any that refer too live too new user
  	$CRT find /etc -type f -exec sed -i "s/live/${UserName}/g" {} \;
