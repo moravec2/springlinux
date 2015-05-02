@@ -29,7 +29,6 @@ our $SCHEMA = [
 
 	{raw => q(<menu execute="~/.config/openbox/pipemenus/obpipemenu-places ~/" id="places" label="Places"/>)},
 	{raw => q(<menu execute="~/.config/openbox/pipemenus/obrecent.sh ~/" id="recent" label="Recent Files"/>)},
-	{raw => q(<menu execute="~/.config/openbox/pipemenus/obkeypipe" id="keybinds" label="Openbox Keys"/>)},
 	{raw => q(<menu execute="~/.config/openbox/pipemenus/fehpipe" id="fehback" label="Wallpapers"/>)},
 
         {raw => q(<menu id="Preferences" label="Preferences">)},
