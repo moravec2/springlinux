@@ -1,3 +1,7 @@
+# Logging
+rsyslog
+
+
 ## Archive Tools
 zip
 unzip
@@ -42,6 +46,7 @@ firefox
 scrot
 #lxde-icon-theme
 mate-themes
+xfce4-notifyd
 
 obconf
 lxappearance
@@ -58,6 +63,7 @@ polkit
 rfkill
 NetworkManager
 network-manager-applet
+gnome-keyring
 
 # Develop Tools
 sudo
