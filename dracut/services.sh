@@ -12,9 +12,11 @@ for f in ${SERVICES}; do
 done
 
 dhcpcd=1
+wpa_supplicant=1
 for f in connmand NetworkManager wicd; do
     if [ -e $SERVICEDIR/$f ]; then
         unset dhcpcd
+		unset wpa_supplicant
     fi
 done
 
@@ -24,6 +26,7 @@ for f in $SERVICEDIR/*; do
     case "${_service}" in
         agetty-console|agetty-generic|agetty-serial|agetty-tty[SAU]*|sulogin|dhcpcd-*|iptables|ip6tables) ;; # ignored
         dhcpcd) [ -n "$dhcpcd" ] && ln -sf ${f##$NEWROOT} $NEWROOT/etc/runit/runsvdir/default/;;
+		wpa_supplicant) [ -n "$wpa_supplicant" ] && ln -sf ${f##$NEWROOT} $NEWROOT/etc/runit/runsvdir/default/;; # test to stop wpa
         *) ln -sf ${f##$NEWROOT} $NEWROOT/etc/runit/runsvdir/default/;;
     esac
 done
