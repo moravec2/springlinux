@@ -63,5 +63,4 @@ Super+h$alignr Toggle Horizontal
 Super+v$alignr Toggle Vertical
 Super+c$alignr Move to Center
 Super+Arrow$alignr Move
-Alt+F3$alignr Dmenu
 Alt+Super+Arrow$alignr Resize
