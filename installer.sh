@@ -93,7 +93,7 @@ WIDGET_SIZE="10 70"
 DIALOG() {
     rm -f $ANSWER
     dialog --colors --keep-tite --no-shadow --no-mouse \
-        --backtitle "${BOLD}${WHITE}Spring Linux installation -- http://www.springlinux.org/ (@@MKLIVE_VERSION@@)${RESET}" \
+        --backtitle "${BOLD}${WHITE}Spring Linux installation -- http://www.springlinux.org/ ${RESET}" \ # (@@MKLIVE_VERSION@@) Add back later
         --cancel-label "Back" --aspect 20 "$@" 2>$ANSWER
     return $?
 }
@@ -1004,7 +1004,7 @@ menu() {
 
     DIALOG --default-item $DEFITEM \
         --extra-button --extra-label "Settings" \
-        --title " Void Linux installation menu " \
+        --title " Spring Linux installation menu " \
         --menu "$MENULABEL" 10 70 0 \
         "Keyboard" "Set system keyboard" \
         "Hostname" "Set system hostname" \
@@ -1050,7 +1050,7 @@ fi
 #
 # main()
 #
-DIALOG --title "${BOLD}${RED} VoidBang ... ${RESET}" --msgbox "\n
+DIALOG --title "${BOLD}${RED} Spring Linux ... ${RESET}" --msgbox "\n
 Welcome to the Spring Linux installation. \
 The installation should be pretty straightforward, if you are in trouble \
 Come visit us at www.springlinux.org (forums)" 16 80
