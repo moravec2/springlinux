@@ -1,4 +1,7 @@
 # Spring Linux
 
-Currently source files are very beta and do contain bugs,issues use with caution
+Source files for Springlinux, based on Void linux. 
+
+Forums bbs.springlinux.org
+
 
