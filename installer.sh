@@ -37,7 +37,6 @@ ROOTPASSWORD_DONE=
 USERPASSWORD_DONE=
 BOOTLOADER_DONE=
 PARTITIONS_DONE=
-NETWORK_DONE=
 FILESYSTEMS_DONE=
 SYSTEMD_INIT=
 
@@ -509,149 +508,7 @@ set_bootloader() {
     fi
 }
 
-test_network() {
-    rm -f xtraeme.asc && \
-        xbps-uhelper fetch http://repo.voidlinux.eu/live/xtraeme.asc >$LOG 2>&1
-    if [ $? -eq 0 ]; then
-        DIALOG --msgbox "Network is working properly!" ${MSGBOXSIZE}
-        NETWORK_DONE=1
-        return 1
-    fi
-    DIALOG --msgbox "Network is unaccessible, please setup it properly." ${MSGBOXSIZE}
-}
-
-configure_wifi() {
-    local dev="$1" ssid enc pass _wpasupconf=/etc/wpa_supplicant/wpa_supplicant.conf
-
-    DIALOG --form "Wireless configuration for ${dev}\n(encryption type: wep or wpa)" 0 0 0 \
-        "SSID:" 1 1 "" 1 16 30 0 \
-        "Encryption:" 2 1 "" 2 16 3 0 \
-        "Password:" 3 1 "" 3 16 30 0 || return 1
-    set -- $(cat $ANSWER)
-    ssid="$1"; enc="$2"; pass="$3";
-
-    if [ -z "$ssid" ]; then
-        DIALOG --msgbox "Invalid SSID." ${MSGBOXSIZE}
-        return 1
-    elif [ -z "$enc" -o "$enc" != "wep" -a "$enc" != "wpa" ]; then
-        DIALOG --msgbox "Invalid encryption type (possible values: wep or wpa)." ${MSXBOXSIZE}
-        return 1
-    elif [ -z "$pass" ]; then
-        DIALOG --msgbox "Invalid AP password." ${MSGBOXSIZE}
-    fi
-
-    rm -f ${_wpasupconf%.conf}-${dev}.conf
-    cp -f ${_wpasupconf} ${_wpasupconf%.conf}-${dev}.conf
-    if [ "$enc" = "wep" ]; then
-        echo "network={" >> ${_wpasupconf%.conf}-${dev}.conf
-        echo "  ssid=\"$ssid\"" >> ${_wpasupconf%.conf}-${dev}.conf
-        echo "  wep_key0=\"$pass\"" >> ${_wpasupconf%.conf}-${dev}.conf
-        echo "  wep_tx_keyidx=0" >> ${_wpasupconf%.conf}-${dev}.conf
-        echo "  auth_alg=SHARED" >> ${_wpasupconf%.conf}-${dev}.conf
-        echo "}" >> ${_wpasupconf%.conf}-${dev}.conf
-    else
-        wpa_passphrase "$ssid" "$pass" >> ${_wpasupconf%.conf}-${dev}.conf
-    fi
-
-    configure_net_dhcp $dev
-    return $?
-}
-
-configure_net() {
-    local dev="$1" rval
-
-    DIALOG --yesno "Do you want to use DHCP for $dev?" ${YESNOSIZE}
-    rval=$?
-    if [ $rval -eq 0 ]; then
-        configure_net_dhcp $dev
-    elif [ $rval -eq 1 ]; then
-        configure_net_static $dev
-    fi
-}
-
-iface_setup() {
-    ip addr show dev $1|grep -q 'inet '
-    return $?
-}
-
-configure_net_dhcp() {
-    local dev="$1"
-
-    iface_setup $dev
-    if [ $? -eq 1 ]; then
-        dhcpcd -t 10 -w -4 -L $dev -e "wpa_supplicant_conf=/etc/wpa_supplicant/wpa_supplicant-${dev}.conf" 2>&1 | tee $LOG | \
-            DIALOG --progressbox "Initializing $dev via DHCP..." ${WIDGET_SIZE}
-        if [ $? -ne 0 ]; then
-            DIALOG --msgbox "${BOLD}${RED}ERROR:${RESET} failed to run dhcpcd. See $LOG for details." ${MSGBOXSIZE}
-            return 1
-        fi
-        iface_setup $dev
-        if [ $? -eq 1 ]; then
-            DIALOG --msgbox "${BOLD}${RED}ERROR:${RESET} DHCP request failed for $dev. Check $LOG for errors." ${MSGBOXSIZE}
-            return 1
-        fi
-    fi
-    test_network
-    if [ $? -eq 1 ]; then
-        set_option NETWORK "${dev} dhcp"
-    fi
-}
-
-configure_net_static() {
-    local ip gw dns1 dns2 dev=$1
-
-    DIALOG --form "Static IP configuration for $dev:" 0 0 0 \
-        "IP address:" 1 1 "192.168.0.2" 1 21 20 0 \
-        "Gateway:" 2 1 "192.168.0.1" 2 21 20 0 \
-        "DNS Primary" 3 1 "8.8.8.8" 3 21 20 0 \
-        "DNS Secondary" 4 1 "8.8.4.4" 4 21 20 0 || return 1
-
-    set -- $(cat $ANSWER)
-    ip=$1; gw=$2; dns1=$3; dns2=$4
-    echo "running: ip link set dev $dev up" >$LOG
-    ip link set dev $dev up >$LOG 2>&1
-    if [ $? -ne 0 ]; then
-        DIALOG --msgbox "${BOLD}${RED}ERROR:${RESET} Failed to bring $dev interface." ${MSGBOXSIZE}
-        return 1
-    fi
-    echo "running: ip addr add $ip dev $dev"
-    ip addr add $ip dev $dev >$LOG 2>&1
-    if [ $? -ne 0 ]; then
-        DIALOG --msgbox "${BOLD}${RED}ERROR:${RESET} Failed to set ip to the $dev interface." ${MSGBOXSIZE}
-        return 1
-    fi
-    ip route add $gw dev $dev >$LOG 2>&1
-    if [ $? -ne 0 ]; then
-        DIALOG --msgbox "${BOLD}${RED}ERROR:${RESET} failed to setup your gateway." ${MSGBOXSIZE}
-        return 1
-    fi
-    echo "nameserver $dns1" >/etc/resolv.conf
-    echo "nameserver $dns2" >>/etc/resolv.conf
-    test_network
-    if [ $? -eq 1 ]; then
-        set_option NETWORK "${dev} static $ip $gw $dns1 $dns2"
-    fi
-}
-
-menu_network() {
-    local dev addr f DEVICES
-
-    for f in $(ls /sys/class/net); do
-        [ "$f" = "lo" ] && continue
-        addr=$(cat /sys/class/net/$f/address)
-        DEVICES="$DEVICES $f $addr"
-    done
-    DIALOG --title " Select the network interface to configure " \
-        --menu "$MENULABEL" ${MENUSIZE} ${DEVICES}
-    if [ $? -eq 0 ]; then
-        dev=$(cat $ANSWER)
-        if $(echo $dev|egrep -q "^wl.*" 2>/dev/null); then
-            configure_wifi $dev
-        else
-            configure_net $dev
-        fi
-    fi
-}
+# network functions removed....
 
 validate_filesystems() {
     local mnts dev size fstype mntpt mkfs rootfound fmt
@@ -919,7 +776,6 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
     else
         # mount required fs
         mount_filesystems
-        # network install, use packages.
         install_packages
     fi
 
@@ -979,22 +835,6 @@ Do you want to reboot the system?" ${YESNOSIZE}
     else
         return
     fi
-}
-
-menu_source() {
-    local src=
-
-    DIALOG --title " Select installation source " \
-        --menu "$MENULABEL" 8 70 0 \
-        "Local" "Packages from ISO image" \
-        "Network" "Packages from official remote reposity"
-    case "$(cat $ANSWER)" in
-        "Local") src="local";;
-        "Network") src="net"; menu_network;;
-        *) return 1;;
-    esac
-    SOURCE_DONE=1
-    set_option SOURCE $src
 }
 
 menu() {
@@ -1057,8 +897,6 @@ Come visit us at www.springlinux.org (forums)" 16 80
 
 SOURCE_DONE=1
 set_option SOURCE local
-NETWORK_DONE=1
-
 
 while true; do
     menu
