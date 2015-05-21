@@ -93,7 +93,7 @@ WIDGET_SIZE="10 70"
 DIALOG() {
     rm -f $ANSWER
     dialog --colors --keep-tite --no-shadow --no-mouse \
-        --backtitle "${BOLD}${WHITE}Spring Linux installation -- http://www.springlinux.org/ ${RESET}" \ # (@@MKLIVE_VERSION@@) Add back later
+        --backtitle "${BOLD}${WHITE}Springlinux installation -- http://www.springlinux.org/ ${RESET}" \ # (@@MKLIVE_VERSION@@) Add back later
         --cancel-label "Back" --aspect 20 "$@" 2>$ANSWER
     return $?
 }
@@ -972,7 +972,7 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
     umount_filesystems
 
     # installed successfully.
-    DIALOG --yesno "${BOLD}Spring Linux has been installed successfully!${RESET}\n
+    DIALOG --yesno "${BOLD}Springlinux has been installed successfully!${RESET}\n
 Do you want to reboot the system?" ${YESNOSIZE}
     if [ $? -eq 0 ]; then
         shutdown -r now
@@ -1004,7 +1004,7 @@ menu() {
 
     DIALOG --default-item $DEFITEM \
         --extra-button --extra-label "Settings" \
-        --title " Spring Linux installation menu " \
+        --title " Springlinux installation menu " \
         --menu "$MENULABEL" 10 70 0 \
         "Keyboard" "Set system keyboard" \
         "Hostname" "Set system hostname" \
@@ -1050,8 +1050,8 @@ fi
 #
 # main()
 #
-DIALOG --title "${BOLD}${RED} Spring Linux ... ${RESET}" --msgbox "\n
-Welcome to the Spring Linux installation. \
+DIALOG --title "${BOLD}${RED} Springlinux ... ${RESET}" --msgbox "\n
+Welcome to the Springlinux installation. \
 The installation should be pretty straightforward, if you are in trouble \
 Come visit us at www.springlinux.org (forums)" 16 80
 
