@@ -92,7 +92,7 @@ WIDGET_SIZE="10 70"
 DIALOG() {
     rm -f $ANSWER
     dialog --colors --keep-tite --no-shadow --no-mouse \
-        --backtitle "${BOLD}${WHITE}Springlinux installation -- http://www.springlinux.org/ ${RESET}" \ # (@@MKLIVE_VERSION@@) Add back later
+        --backtitle "${BOLD}${WHITE}Springlinux installation -- http://www.springlinux.org/ ${RESET}" \
         --cancel-label "Back" --aspect 20 "$@" 2>$ANSWER
     return $?
 }
@@ -679,6 +679,12 @@ umount_filesystems() {
     umount $TARGETDIR >$LOG 2>&1
 }
 
+# copy image
+copy_image() {
+	/usr/bin/progress_copy $TARGETDIR
+}
+
+# copy root
 copy_rootfs() {
     DIALOG --title "Check $LOG for details" \
         --infobox "Copying live image to target rootfs, please wait ..." 4 60
@@ -708,14 +714,6 @@ install_packages() {
         --programbox 24 80
     if [ $? -ne 0 ]; then
         DIE 1
-    fi
-}
-
-enable_dhcpd() {
-    if [ -n "$SYSTEMD_INIT" ]; then
-        chroot $TARGETDIR systemctl enable dhcpcd.service >$LOG 2>&1
-    else
-        ln -s /etc/sv/dhcpcd $TARGETDIR/etc/runit/runsvdir/default/dhcpcd
     fi
 }
 
@@ -753,7 +751,7 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
 
     # If source not set use defaults.
     if [ "$(get_option SOURCE)" = "local" -o -z "$SOURCE_DONE" ]; then
-        copy_rootfs
+        copy_rootfs # switch too copy_image too test progress bar
         . /etc/default/live.conf
         rm -f $TARGETDIR/etc/motd
         rm -f $TARGETDIR/etc/issue
@@ -890,7 +888,7 @@ fi
 #
 # main()
 #
-DIALOG --title "${BOLD}${RED} Springlinux ... ${RESET}" --msgbox "\n
+DIALOG --title "${BOLD}${RED} Springlinux ${RESET}" --msgbox "\n
 Welcome to the Springlinux installation. \
 The installation should be pretty straightforward, if you are in trouble \
 Come visit us at www.springlinux.org (forums)" 16 80
