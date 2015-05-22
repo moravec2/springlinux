@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright (c) 2012-2014 Juan Romero Pardines <xtraeme@gmail.com>.
 #               2012 Dave Elusive <davehome@redthumb.info.tm>.
@@ -25,6 +25,8 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #-
 # Modified for Springlinux by mrgreen <mrgreen@springlinux.org>
+
+shopt -s nullglob
 
 
 # Make sure we don't inherit these from env.
@@ -681,7 +683,31 @@ umount_filesystems() {
 
 # copy image
 copy_image() {
-	/usr/bin/progress_copy $TARGETDIR
+	mkdir -p /mnt/squashfs
+    mkdir -p /mnt/ext3fs
+    mount -o loop /run/initramfs/live/LiveOS/squashfs.img /mnt/squashfs
+    mount -o loop /mnt/squashfs/LiveOS/ext3fs.img /mnt/ext3fs
+    DIRS=(/mnt/ext3fs/*)
+
+    DIALOG --title "Installing system...." --gauge "Please wait..." 10 75 < <(
+    # Get total number of files in array
+    n=${#DIRS[*]}; 
+    i=0
+    for f in "${DIRS[@]}"
+    do
+        PCT=$(( 100*(++i)/n ))
+cat <<EOF
+XXX
+$PCT
+Copying file "$f"...
+XXX
+EOF
+
+    LANG=C cp -Rp $f ${TARGETDIR} >$LOG
+    done
+)
+    umount /mnt/ext3fs
+    umount /mnt/squashfs
 }
 
 # copy root

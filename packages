@@ -46,7 +46,7 @@ firefox
 scrot
 #lxde-icon-theme
 mate-themes
-xfce4-notifyd
+#xfce4-notifyd
 
 obconf
 lxappearance
@@ -106,3 +106,4 @@ grub
 
 # Non free repo
 void-repo-nonfree
+
