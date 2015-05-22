@@ -5,7 +5,7 @@
 shopt -s nullglob
 
 INSTALLDIR="${1}"
-LOG_FILE="${2}"
+LOG_FILE="/tmp/installer_log"
 
 mkdir -p /mnt/squashfs
 mkdir -p /mnt/ext3fs
