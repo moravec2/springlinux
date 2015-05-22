@@ -1,0 +1,35 @@
+#!/bin/bash
+# based on a script found on
+# http://bash.cyberciti.biz/guide/A_progress_bar_(gauge_box)
+
+shopt -s nullglob
+
+INSTALLDIR="${1}"
+LOG_FILE="${2}"
+
+mkdir -p /mnt/squashfs
+mkdir -p /mnt/ext3fs
+mount -o loop /run/initramfs/live/LiveOS/squashfs.img /mnt/squashfs
+mount -o loop /mnt/squashfs/LiveOS/ext3fs.img /mnt/ext3fs
+DIRS=(/mnt/ext3fs/*)
+
+dialog --title "Installing system...." --gauge "Please wait..." 10 75 < <(
+	# Get total number of files in array
+n=${#DIRS[*]}; 
+i=0
+for f in "${DIRS[@]}"
+do
+PCT=$(( 100*(++i)/n ))
+cat <<EOF
+XXX
+$PCT
+Copying file "$f"...
+XXX
+EOF
+
+/bin/cp -Rp $f ${INSTALLDIR} >$LOG_FILE
+done
+)
+umount /mnt/ext3fs
+umount /mnt/squashfs
+
