@@ -1,5 +1,3 @@
-voloumeicon issue
-theme
-wireless?
 installer changes
 
+progress bar script included, will need to use 'useradd' as configs are now in /etc/skel
