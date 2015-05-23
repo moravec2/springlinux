@@ -42,6 +42,9 @@ PARTITIONS_DONE=
 FILESYSTEMS_DONE=
 SYSTEMD_INIT=
 
+# add variable for chroot
+CRT="chroot $TARGETDIR"
+
 TARGETDIR=/mnt/target
 LOG="/tmp/$(basename ${0})_error.log" # old version /dev/tty8
 CONF_FILE=/tmp/.void-installer.conf
@@ -468,7 +471,7 @@ set_rootpassword() {
 
 # need to figure username
 set_userpassword() {
-    echo "live:$(get_option USERPASSWORD)" | chpasswd -R $TARGETDIR -c SHA512
+    echo "$(get_option USERNAME):$(get_option USERPASSWORD)" | chpasswd -R $TARGETDIR -c SHA512
 }
 
 menu_bootloader() {
@@ -781,11 +784,7 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
         . /etc/default/live.conf
         rm -f $TARGETDIR/etc/motd
         rm -f $TARGETDIR/etc/issue
-        # Remove live user.
-		# We need to add new user not delete it!
 
-#        echo "Removing $USERNAME live user from targetdir ..." >$LOG
-#        chroot $TARGETDIR userdel -r $USERNAME >$LOG 2>&1
         DIALOG --title "Check $LOG for details" \
             --infobox "Rebuilding initramfs for target ..." 4 60
         echo "Rebuilding initramfs for target ..." >$LOG
@@ -810,27 +809,23 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
     # Mount /tmp as tmpfs.
     echo "tmpfs /tmp tmpfs defaults,nosuid,nodev 0 0" >> $TARGETDIR/etc/fstab
 
-
-    # set up keymap, locale, timezone, hostname and root passwd.
+    # set up keymap, locale, timezone, hostname, root password and new user
     set_keymap
     set_locale
     set_timezone
     set_hostname
     set_rootpassword
-	set_userpassword
-
-#	add variable chroot
-	CRT="chroot $TARGETDIR"
-
 	UserName=$(get_option USERNAME)
-	UserPassword=$(get_option USERPASSWORD)
+    UserPassword=$(get_option USERPASSWORD)
+  	useradd -m -g users -G wheel,power,network,storage,audio,video -s /bin/bash ${UserName}
+	set_userpassword
 
 # 	remove autologin for live user from lxdm
  	$CRT sed -i "s/autologin=live/\#autologin=live/g" /etc/lxdm/lxdm.conf
 
 # 	move /home/live too new user
- 	$CRT mv /home/live /home/${UserName} &> /dev/null
-	$CRT chown -R ${UserName}:users /home/${UserName}
+# 	$CRT mv /home/live /home/${UserName} &> /dev/null
+#	$CRT chown -R ${UserName}:users /home/${UserName}
 #	$CRT chgrp users /home/${UserName} &> /dev/null
 
 # 	find files in /etc /home/<user> change any that refer too live too new user
