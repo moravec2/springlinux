@@ -780,7 +780,8 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
 
     # If source not set use defaults.
     if [ "$(get_option SOURCE)" = "local" -o -z "$SOURCE_DONE" ]; then
-        copy_rootfs # switch too copy_image too test progress bar
+#       copy_rootfs # switch too copy_image too test progress bar
+		copy_image
         . /etc/default/live.conf
         rm -f $TARGETDIR/etc/motd
         rm -f $TARGETDIR/etc/issue
@@ -790,7 +791,7 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
         echo "Rebuilding initramfs for target ..." >$LOG
         # mount required fs
         mount_filesystems
-        chroot $TARGETDIR dracut --no-hostonly --add-drivers "ahci" --force >>$LOG 2>&1
+        $CRT dracut --no-hostonly --add-drivers "ahci" --force >>$LOG 2>&1
         DIALOG --title "Check $LOG for details" \
             --infobox "Removing temporary packages from target ..." 4 60
         echo "Removing temporary packages from target ..." >$LOG
@@ -817,23 +818,25 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
     set_rootpassword
 	UserName=$(get_option USERNAME)
     UserPassword=$(get_option USERPASSWORD)
-  	useradd -m -g users -G wheel,power,network,storage,audio,video -s /bin/bash ${UserName}
+# this should be on new install?
+  	$CRT /usr/sbin/useradd -m -g users -G wheel,power,network,storage,audio,video -s /bin/bash "${UserName}"
 	set_userpassword
 
 # 	remove autologin for live user from lxdm
- 	$CRT sed -i "s/autologin=live/\#autologin=live/g" /etc/lxdm/lxdm.conf
+ 	sed -i "s/autologin=live/\#autologin=live/g" $TARGETDIR/etc/lxdm/lxdm.conf
 
-# 	move /home/live too new user
-# 	$CRT mv /home/live /home/${UserName} &> /dev/null
-#	$CRT chown -R ${UserName}:users /home/${UserName}
-#	$CRT chgrp users /home/${UserName} &> /dev/null
+# add dbus,NetworkManager,lxdm services ....
+	for s in alsa dbus NetworkManager lxdm
+	do
+   		ln -s $TARGETDIR/etc/runit/runsvdir/default/${s} $TARGETDIR/etc/sv/${s}
+	done
 
-# 	find files in /etc /home/<user> change any that refer too live too new user
+
  	$CRT find /etc -type f -exec sed -i "s/live/${UserName}/g" {} \;
  	$CRT find /home/${UserName} -type f -exec sed -i "s/live/${UserName}/g" {} \;
 
 # 	remove installer from openbox menu and from new install....
- 	$CRT sed -i "/springlinux-installer/,+1d" /home/${UserName}/.config/obmenu-generator/schema.pl
+ 	sed -i "/springlinux-installer/,+1d" $TARGETDIR/home/${UserName}/.config/obmenu-generator/schema.pl
 	rm $TARGETDIR/usr/sbin/springlinux-installer
 
     # Copy /etc/skel files for root.
