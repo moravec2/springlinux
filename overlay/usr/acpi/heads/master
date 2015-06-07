@@ -1,0 +1,32 @@
+0000000000000000000000000000000000000000 a20ea4bc403477ee7c10849e02b42eae429b8a6a mrgreen <mrgreen@archbang.org> 1429341362 +0100	commit (initial): first commit
+a20ea4bc403477ee7c10849e02b42eae429b8a6a ec248fd842acd4a358d6f69ee71c82f1f03b0ec8 mrgreen <mrgreen@archbang.org> 1429341423 +0100	commit: switch too spring linux
+ec248fd842acd4a358d6f69ee71c82f1f03b0ec8 b4d6bef9f95547cb21e302d06798eaaaa2cd413f mrgreen <mrgreen@archbang.org> 1429341656 +0100	commit: add udevil auto mount config
+b4d6bef9f95547cb21e302d06798eaaaa2cd413f f89d5f80b34b61c3e94768664b81fa7fdc020264 mrgreen <mrgreen@archbang.org> 1429346904 +0100	commit: update configs too spring release
+f89d5f80b34b61c3e94768664b81fa7fdc020264 596509f6ecbbba9c8e33b3ba52d3eb750cd0c1b7 mrgreen <mrgreen@archbang.org> 1429446900 +0100	commit: update source
+596509f6ecbbba9c8e33b3ba52d3eb750cd0c1b7 6d72e1e22b3f6359bd6f2a3fa36b025b92272e89 mrgreen <mrgreen@archbang.org> 1429454429 +0100	commit: include setupnew script
+6d72e1e22b3f6359bd6f2a3fa36b025b92272e89 c159b0fdc71aaba97824b1255386f7c1a288d809 mrgreen <mrgreen@archbang.org> 1429555277 +0100	commit: add non free repo
+c159b0fdc71aaba97824b1255386f7c1a288d809 fbea6e9eef7a3937bde03c5a5e4f11ee2b380384 mrgreen <mrgreen@archbang.org> 1429596385 +0100	commit: update source
+fbea6e9eef7a3937bde03c5a5e4f11ee2b380384 e6aaa993b9af74fe4fb67a0eabbe452c4387ac73 mrgreen <mrgreen@archbang.org> 1429685677 +0100	commit: switch too set_userpassword function
+e6aaa993b9af74fe4fb67a0eabbe452c4387ac73 982aa0d9fcb829237baeb1317752711e2ae7bbc6 mrgreen <mrgreen@archbang.org> 1430461533 +0100	commit: change too rc release scheme
+982aa0d9fcb829237baeb1317752711e2ae7bbc6 9106649f0f5a84d621eb4831cc1a0201c9918a04 mrgreen <mrgreen@archbang.org> 1430461645 +0100	commit: first commit
+9106649f0f5a84d621eb4831cc1a0201c9918a04 876e6d011d19fe0e739172909a942ce40c2b4ccb mrgreen <mrgreen@archbang.org> 1430574681 +0100	commit: remove chown
+876e6d011d19fe0e739172909a942ce40c2b4ccb 74025002913457606ecac745d4075b5c890e6c66 mrgreen <mrgreen@archbang.org> 1430591337 +0100	commit: add copy too ram
+74025002913457606ecac745d4075b5c890e6c66 2f6955ace436c22cb5c1389ecb834cc1def33d91 mrgreen <mrgreen@archbang.org> 1430591473 +0100	commit: remove obkeymenu
+2f6955ace436c22cb5c1389ecb834cc1def33d91 d1eefd28c75756849ff849c5af3ebaa078da7c7d mrgreen <mrgreen@archbang.org> 1430900492 +0100	commit: add network group
+d1eefd28c75756849ff849c5af3ebaa078da7c7d 84e6b147beef16a16c4b9327a5d8a07ff03e0e9f mrgreen <mrgreen@archbang.org> 1431284759 +0100	commit: add rsyslog
+84e6b147beef16a16c4b9327a5d8a07ff03e0e9f 124403cebc9b1dd4d3c954f9d10ce5e6746f6167 mrgreen <mrgreen@archbang.org> 1431325184 +0100	commit: remove wpa service
+124403cebc9b1dd4d3c954f9d10ce5e6746f6167 8588e58d0411a8731243141c39645d492b1c9098 mrgreen <mrgreen@archbang.org> 1431369826 +0100	commit: first commit
+8588e58d0411a8731243141c39645d492b1c9098 344089f45074549dad96bdf04e407d24e6fc69d1 mrgreen <mrgreen@archbang.org> 1432101214 +0100	commit: remove duplicate dmenu
+344089f45074549dad96bdf04e407d24e6fc69d1 86f0ad4712fa64b13293f1843fdb05ddf32bd327 mrgreen <mrgreen@archbang.org> 1432101564 +0100	commit: remove VoidBang references and MKLIVE
+86f0ad4712fa64b13293f1843fdb05ddf32bd327 c10862e8194029f93dfcd5fb1940eece89f3bb13 mrgreen3 <mr.k.clarke@gmail.com> 1432189854 +0100	commit: Change too Springlinux
+c10862e8194029f93dfcd5fb1940eece89f3bb13 71e9fd0bccd0838c1e4ff9c9a9e6ab48ad64229f mrgreen <mrgreen@archbang.org> 1432192328 +0100	commit: remove network options, run source only
+71e9fd0bccd0838c1e4ff9c9a9e6ab48ad64229f d3a3d7496f4c15b20d203323e8e4ae87dc5e3d99 mrgreen <mrgreen@archbang.org> 1432192358 +0100	pull: Merge made by the 'recursive' strategy.
+d3a3d7496f4c15b20d203323e8e4ae87dc5e3d99 85daae35533f39a5695257fe8ad6450b1e065f0b mrgreen <mrgreen@archbang.org> 1432192527 +0100	commit: first commit
+85daae35533f39a5695257fe8ad6450b1e065f0b 8fea4abac745633eed542a83e291d04331373d25 mrgreen <mrgreen@archbang.org> 1432192576 +0100	commit: update
+8fea4abac745633eed542a83e291d04331373d25 13d84d7b4a79160488e00f3d85c5fa5a7169106b mrgreen <mrgreen@archbang.org> 1432192597 +0100	commit: update
+13d84d7b4a79160488e00f3d85c5fa5a7169106b 26aeba097a89f9812ec1d4f37e3fe9d9014a07ce mrgreen <mrgreen@archbang.org> 1432287581 +0100	commit: first commit
+26aeba097a89f9812ec1d4f37e3fe9d9014a07ce eb1aa09ad5d7231889bb511d67bd0c1f2263779e mrgreen <mrgreen@archbang.org> 1432292236 +0100	commit: update
+eb1aa09ad5d7231889bb511d67bd0c1f2263779e 3e17b7002d15812374b2afb3a7f01e995b65606d mrgreen <mrgreen@archbang.org> 1432292249 +0100	commit: typo
+3e17b7002d15812374b2afb3a7f01e995b65606d 4035253d1ff0a6fdc0d9071f9b393ac89d68e095 mrgreen <mrgreen@archbang.org> 1432292266 +0100	commit: add copy_image function
+4035253d1ff0a6fdc0d9071f9b393ac89d68e095 4a4f37a0faf01bef95acd1d52f74a2eea9381ed5 mrgreen <mrgreen@archbang.org> 1432304197 +0100	commit: remove progress_copy
+4a4f37a0faf01bef95acd1d52f74a2eea9381ed5 976886a2c4929d6b358b184a041d7bebd5b6a5f5 mrgreen <mrgreen@archbang.org> 1432380270 +0100	commit: make changes for adding new user

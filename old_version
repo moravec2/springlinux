@@ -28,7 +28,10 @@
 #-
 trap "error_out $LINENO $?" INT TERM 0
 
-readonly REQUIRED_PKGS="base-files libgcc dash coreutils sed tar gawk syslinux grub-x86_64-efi squashfs-tools xorriso"
+GRUB=""
+[ $(uname -m) = "x86_64" ] && GRUB="grub-x86_64-efi"
+
+readonly REQUIRED_PKGS="base-files libgcc dash coreutils sed tar gawk syslinux squashfs-tools xorriso $GRUB"
 readonly INITRAMFS_PKGS="binutils xz device-mapper"
 readonly PROGNAME=$(basename $0)
 
@@ -42,19 +45,7 @@ die() {
     info_msg "ERROR: $@"
     error_out 1
 }
-mount_pseudofs() {
-    for f in sys dev proc; do
-        mkdir -p $ROOTFS/$f
-        mount --bind /$f $ROOTFS/$f
-    done
-}
-umount_pseudofs() {
-    umount -f $ROOTFS/sys >/dev/null 2>&1
-    umount -f $ROOTFS/dev >/dev/null 2>&1
-    umount -f $ROOTFS/proc >/dev/null 2>&1
-}
 error_out() {
-    umount_pseudofs
     [ -d "$BUILDDIR" -a -z "$KEEP_BUILDDIR" ] && rm -rf "$BUILDDIR"
     exit ${1:=0}
 }
@@ -97,42 +88,36 @@ copy_void_conf() {
 
 copy_dracut_files() {
     mkdir -p $1/usr/lib/dracut/modules.d/01vmklive
-    cp dracut/* $1/usr/lib/dracut/modules.d/01vmklive/
+    cp dracut/*.sh $1/usr/lib/dracut/modules.d/01vmklive/
 }
 
 install_prereqs() {
     copy_void_conf $VOIDHOSTDIR
-    $XBPS_INSTALL_CMD -r $VOIDHOSTDIR $XBPS_REPOSITORY \
-        $XBPS_HOST_CACHEDIR -y ${REQUIRED_PKGS}
+    $XBPS_INSTALL_CMD -r $VOIDHOSTDIR $XBPS_REPOSITORY $XBPS_CACHEDIR -y ${REQUIRED_PKGS}
     [ $? -ne 0 ] && die "Failed to install required software, exiting..."
 }
 
 install_packages() {
     copy_void_conf $ROOTFS
-
-    XBPS_ARCH=$BASE_ARCH ${XBPS_INSTALL_CMD} -r $ROOTFS \
-        $XBPS_REPOSITORY $XBPS_CACHEDIR -yn ${PACKAGE_LIST} ${INITRAMFS_PKGS}
+    # Check that all pkgs are reachable.
+    ${XBPS_INSTALL_CMD} -r $ROOTFS $XBPS_REPOSITORY $XBPS_CACHEDIR -yn ${PACKAGE_LIST} ${INITRAMFS_PKGS}
     [ $? -ne 0 ] && die "Missing required binary packages, exiting..."
 
-    mount_pseudofs
-
-    LANG=C XBPS_ARCH=$BASE_ARCH ${XBPS_INSTALL_CMD} -U -r $ROOTFS \
-        $XBPS_REPOSITORY $XBPS_CACHEDIR -y ${PACKAGE_LIST} ${INITRAMFS_PKGS}
+    LANG=C ${XBPS_INSTALL_CMD} -r $ROOTFS $XBPS_REPOSITORY $XBPS_CACHEDIR -y ${PACKAGE_LIST} ${INITRAMFS_PKGS}
     [ $? -ne 0 ] && die "Failed to install $PACKAGE_LIST"
-
-    xbps-reconfigure -r $ROOTFS -f base-files >/dev/null 2>&1
-    chroot $ROOTFS env -i xbps-reconfigure -f base-files
 
     # Enable choosen UTF-8 locale and generate it into the target rootfs.
     if [ -f $ROOTFS/etc/default/libc-locales ]; then
         sed -e "s/\#\(${LOCALE}.*\)/\1/g" -i $ROOTFS/etc/default/libc-locales
+        xbps-reconfigure -r $ROOTFS -f glibc-locales || die "Failed to reconfigure glibc-locales"
     fi
-    chroot $ROOTFS env -i xbps-reconfigure -a
+    if xbps-query -r $ROOTFS util-linux >/dev/null 2>&1; then
+        # reconfigure util-linux just to be safe
+        xbps-reconfigure -r $ROOTFS -f util-linux
+    fi
 
     if [ -x installer.sh ]; then
         install -Dm755 installer.sh $ROOTFS/usr/sbin/springlinux-installer
-    else
-        install -Dm755 /usr/sbin/void-installer $ROOTFS/usr/sbin/void-installer
     fi
     # Cleanup and remove useless stuff.
     rm -rf $ROOTFS/var/cache/* $ROOTFS/run/* $ROOTFS/var/run/*
@@ -147,7 +132,7 @@ generate_initramfs() {
     else
         _args="--omit systemd"
     fi
-    chroot $ROOTFS env -i /usr/bin/dracut -N --${INITRAMFS_COMPRESSION} \
+    xbps-uchroot $ROOTFS env -i /usr/bin/dracut -N --${INITRAMFS_COMPRESSION} \
         --add-drivers "ahci" --force-add "vmklive" ${_args} "/boot/initrd" $KERNELVERSION
     [ $? -ne 0 ] && die "Failed to generate the initramfs"
 
@@ -180,7 +165,7 @@ generate_isolinux_boot() {
     sed -i  -e "s|@@SPLASHIMAGE@@|$(basename ${SPLASH_IMAGE})|" \
         -e "s|@@KERNVER@@|${KERNELVERSION}|" \
         -e "s|@@KEYMAP@@|${KEYMAP}|" \
-        -e "s|@@ARCH@@|$BASE_ARCH|" \
+        -e "s|@@ARCH@@|$(uname -m)|" \
         -e "s|@@LOCALE@@|${LOCALE}|" \
         -e "s|@@BOOT_TITLE@@|${BOOT_TITLE}|" \
         -e "s|@@BOOT_CMDLINE@@|${BOOT_CMDLINE}|" \
@@ -193,7 +178,7 @@ generate_grub_efi_boot() {
     sed -i  -e "s|@@SPLASHIMAGE@@|$(basename ${SPLASH_IMAGE})|" \
         -e "s|@@KERNVER@@|${KERNELVERSION}|" \
         -e "s|@@KEYMAP@@|${KEYMAP}|" \
-        -e "s|@@ARCH@@|$BASE_ARCH|" \
+        -e "s|@@ARCH@@|$(uname -m)|" \
         -e "s|@@BOOT_TITLE@@|${BOOT_TITLE}|" \
         -e "s|@@BOOT_CMDLINE@@|${BOOT_CMDLINE}|" \
         -e "s|@@LOCALE@@|${LOCALE}|" $GRUB_DIR/grub_void.cfg
@@ -211,7 +196,7 @@ generate_grub_efi_boot() {
     mount -o rw,flush -t vfat "${LOOP_DEVICE}" "${GRUB_EFI_TMPDIR}" >/dev/null 2>&1
 
     cp -a $IMAGEDIR/boot $VOIDHOSTDIR
-    xbps-uchroot $VOIDHOSTDIR grub-mkstandalone -- \
+    xbps-uchroot $VOIDHOSTDIR grub-mkstandalone \
         --directory="/usr/lib/grub/x86_64-efi" \
         --format="x86_64-efi" \
         --compression="xz" --output="/tmp/bootx64.efi" \
@@ -229,16 +214,16 @@ generate_grub_efi_boot() {
 }
 
 generate_squashfs() {
-    umount_pseudofs
-
     # Find out required size for the rootfs and create an ext3fs image off it.
     ROOTFS_SIZE=$(du -sm "$ROOTFS"|awk '{print $1}')
     if [ -z "$ROOTFS_FREESIZE" ]; then
         ROOTFS_FREESIZE="$((ROOTFS_SIZE/6))"
     fi
     mkdir -p "$BUILDDIR/tmp/LiveOS"
-    dd if=/dev/zero of="$BUILDDIR/tmp/LiveOS/ext3fs.img" \
-        bs="$((ROOTFS_SIZE+ROOTFS_FREESIZE))M" count=1 >/dev/null 2>&1
+	fallocate -l 10G "$BUILDDIR/tmp/LiveOS/ext3fs.img" >/dev/null 2>&1
+
+    #dd if=/dev/zero of="$BUILDDIR/tmp/LiveOS/ext3fs.img" \
+    #    bs="$((ROOTFS_SIZE+ROOTFS_FREESIZE))M" count=1 >/dev/null 2>&1
     mkdir -p "$BUILDDIR/tmp-rootfs"
     mkfs.ext3 -F -m1 "$BUILDDIR/tmp/LiveOS/ext3fs.img" >/dev/null 2>&1
     mount -o loop "$BUILDDIR/tmp/LiveOS/ext3fs.img" "$BUILDDIR/tmp-rootfs"
@@ -246,16 +231,15 @@ generate_squashfs() {
     umount -f "$BUILDDIR/tmp-rootfs"
     mkdir -p "$IMAGEDIR/LiveOS"
 
-    $VOIDHOSTDIR/usr/bin/mksquashfs "$BUILDDIR/tmp" "$IMAGEDIR/LiveOS/squashfs.img" \
+    mksquashfs "$BUILDDIR/tmp" "$IMAGEDIR/LiveOS/squashfs.img" \
         -comp ${SQUASHFS_COMPRESSION} || die "Failed to generate squashfs image"
     chmod 444 "$IMAGEDIR/LiveOS/squashfs.img"
-
     # Remove rootfs and temporary dirs, we don't need them anymore.
     rm -rf "$ROOTFS" "$BUILDDIR/tmp-rootfs" "$BUILDDIR/tmp"
 }
 
 generate_iso_image() {
-    $VOIDHOSTDIR/usr/bin/xorriso -as mkisofs \
+    xorriso -as mkisofs \
         -iso-level 3 -rock -joliet \
         -max-iso9660-filenames -omit-period \
         -omit-version-number -relaxed-filenames -allow-lowercase \
@@ -293,18 +277,14 @@ while getopts "a:b:r:c:C:T:Kk:l:i:s:S:o:p:h" opt; do
 done
 shift $((OPTIND - 1))
 
-ARCH=$(uname -m)
-
 # Set defaults
-: ${BASE_ARCH:=$(uname -m)}
-: ${XBPS_CACHEDIR:=-c $(pwd -P)/xbps-cachedir-${BASE_ARCH}}
-: ${XBPS_HOST_CACHEDIR:=-c $(pwd -P)/xbps-cachedir-${ARCH}}
+: ${XBPS_CACHEDIR:=--cachedir=/var/cache/xbps}
 : ${KEYMAP:=us}
 : ${LOCALE:=en_US.UTF-8}
 : ${INITRAMFS_COMPRESSION:=xz}
 : ${SQUASHFS_COMPRESSION:=xz}
 : ${BASE_SYSTEM_PKG:=base-system}
-: ${BOOT_TITLE:="Springlinux"}
+: ${BOOT_TITLE:="SpringLinux"}
 
 # Required packages in the image for a working system.
 PACKAGE_LIST="$BASE_SYSTEM_PKG $PACKAGE_LIST"
@@ -320,7 +300,7 @@ fi
 
 readonly CURDIR="$PWD"
 
-ISO_VOLUME="VOID_LIVE"
+ISO_VOLUME="SPRINGLINUX_LIVE"
 if [ -n "$ROOTDIR" ]; then
     BUILDDIR=$(mktemp --tmpdir="$ROOTDIR" -d)
 else
@@ -335,7 +315,7 @@ ISOLINUX_DIR="$BOOT_DIR/isolinux"
 GRUB_DIR="$BOOT_DIR/grub"
 ISOLINUX_CFG="$ISOLINUX_DIR/isolinux.cfg"
 
-: ${XBPS_REPOSITORY:=--repository=http://repo.voidlinux.eu/current --repository=http://muslrepo.voidlinux.eu/current}
+: ${XBPS_REPOSITORY:=--repository=http://repo.voidlinux.eu/current}
 : ${SYSLINUX_DATADIR:=$VOIDHOSTDIR/usr/share/syslinux}
 : ${GRUB_DATADIR:=$VOIDHOSTDIR/usr/share/grub}
 : ${SPLASH_IMAGE:=data/splash.png}
@@ -348,17 +328,20 @@ ISOLINUX_CFG="$ISOLINUX_DIR/isolinux.cfg"
 
 mkdir -p $ROOTFS $VOIDHOSTDIR $ISOLINUX_DIR $GRUB_DIR
 
+if [ -n "$BASE_ARCH" ]; then
+    export XBPS_ARCH="$BASE_ARCH"
+fi
+
 info_msg "[1/8] Synchronizing XBPS repository data..."
 copy_void_keys $ROOTFS
-copy_void_keys $VOIDHOSTDIR
-XBPS_ARCH=$BASE_ARCH $XBPS_INSTALL_CMD -r $ROOTFS ${XBPS_REPOSITORY} -S
-$XBPS_INSTALL_CMD -r $VOIDHOSTDIR $XBPS_REPOSITORY -S
+$XBPS_INSTALL_CMD -r $ROOTFS ${XBPS_REPOSITORY} -S
+cp -a $ROOTFS/* $VOIDHOSTDIR
 
-_linux_series=$(XBPS_ARCH=$BASE_ARCH $XBPS_QUERY_CMD -r $ROOTFS ${XBPS_REPOSITORY:=-R} -x linux)
-KERNELVERSION=$(XBPS_ARCH=$BASE_ARCH $XBPS_QUERY_CMD -r $ROOTFS ${XBPS_REPOSITORY:=-R} -p pkgver ${_linux_series})
+_linux_series=$($XBPS_QUERY_CMD -r $ROOTFS ${XBPS_REPOSITORY:=-R} -x linux)
+KERNELVERSION=$($XBPS_QUERY_CMD -r $ROOTFS ${XBPS_REPOSITORY:=-R} -p pkgver ${_linux_series})
 KERNELVERSION=$($XBPS_UHELPER_CMD getpkgversion $KERNELVERSION)
 
-: ${OUTPUT_FILE="springlinux-rc-${BASE_ARCH}-${KERNELVERSION}-$(date +%Y%m%d).iso"}
+: ${OUTPUT_FILE="springlinux-rc-${BASE_ARCH}-$(date +%d%m%y).iso"}
 
 info_msg "[2/9] Installing software to generate the image: ${REQUIRED_PKGS} ..."
 install_prereqs
@@ -369,6 +352,22 @@ mkdir -p "$ROOTFS"/etc
 
 info_msg "[3/9] Installing void pkgs into the rootfs: ${PACKAGE_LIST} ..."
 install_packages
+
+#
+# Spring Linux magic starts here
+#
+# copy overlay here to $ROOTFS need script path and change owner
+cp -a /home/mrgreen/springlinux/overlay/* "$ROOTFS"
+# change owner of overlay files
+find $ROOTFS -user mrgreen -exec chown root:root {} \;
+# run customroot script to start services live...
+xbps-uchroot $ROOTFS /bin/bash /root/customroot
+# remove once complete
+rm $ROOTFS/root/customroot
+
+
+export PATH=$VOIDHOSTDIR/usr/bin:$VOIDHOSTDIR/usr/sbin:$ROOTFS/usr/bin:$ROOTFS/usr/sbin:$PATH
+export LD_LIBRARY_PATH=$ROOTFS/usr/lib:$VOIDHOSTDIR/usr/lib
 
 info_msg "[4/9] Generating initramfs image ($INITRAMFS_COMPRESSION)..."
 generate_initramfs
