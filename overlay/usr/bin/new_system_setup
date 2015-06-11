@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set up system and new user
-/usr/sbin/useradd -m -g users -p "${2}" -G wheel,audio,video -s /bin/bash ${1}
+/usr/bin/useradd -m -g users -p "${2}" -G wheel,audio,video -s /bin/bash ${1}
 
 #   remove autologin for live user from lxdm
 sed -i "s/autologin=live/\#autologin=live/g" /etc/lxdm/lxdm.conf
