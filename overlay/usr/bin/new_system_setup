@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# Set up system and new user
+/usr/sbin/useradd -m -g users -p "${2}" -G wheel,audio,video -s /bin/bash ${1}
+
+#   remove autologin for live user from lxdm
+sed -i "s/autologin=live/\#autologin=live/g" /etc/lxdm/lxdm.conf
+
+# add dbus,NetworkManager,lxdm services ....
+for s in alsa dbus NetworkManager lxdm
+do
+	ln -s /etc/runit/runsvdir/default/${s} /etc/sv/${s}
+done
+
+# change live too new user in configs
+find /etc -type f -exec sed -i "s/live/${1}/g" {} \;
+find /home/${1} -type f -exec sed -i "s/live/${1}/g" {} \;
+
+

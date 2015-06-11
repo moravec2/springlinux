@@ -1,7 +1,7 @@
 require '/home/live/.config/obmenu-generator/config.pl';
 
 our $SCHEMA = [
-    {sep => 'VoidBang'},
+    {sep => 'Springlinux'},
     #             COMMAND                 LABEL                ICON
     {item => ['spacefm',           'File Manager',      'file-manager']},
     {item => [$CONFIG->{terminal}, 'Terminal',          'terminal']},

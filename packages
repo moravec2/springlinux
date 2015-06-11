@@ -48,8 +48,8 @@ scrot
 mate-themes
 #xfce4-notifyd
 
-obconf
-lxappearance
+#obconf
+lxappearance-obconf
 lxinput
 xrandr
 obmenu-generator
@@ -107,3 +107,4 @@ grub
 # Non free repo
 void-repo-nonfree
 
+nscd

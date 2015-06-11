@@ -43,7 +43,7 @@ FILESYSTEMS_DONE=
 SYSTEMD_INIT=
 
 # add variable for chroot
-CRT="chroot $TARGETDIR"
+CRT="chroot $TARGETDIR /bin/bash"
 
 TARGETDIR=/mnt/target
 LOG="/tmp/$(basename ${0})_error.log" # old version /dev/tty8
@@ -819,21 +819,8 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
 	UserName=$(get_option USERNAME)
     UserPassword=$(get_option USERPASSWORD)
 # this should be on new install?
-  	$CRT /usr/sbin/useradd -m -g users -G wheel,power,network,storage,audio,video -s /bin/bash "${UserName}"
-	set_userpassword
 
-# 	remove autologin for live user from lxdm
- 	sed -i "s/autologin=live/\#autologin=live/g" $TARGETDIR/etc/lxdm/lxdm.conf
-
-# add dbus,NetworkManager,lxdm services ....
-	for s in alsa dbus NetworkManager lxdm
-	do
-   		ln -s $TARGETDIR/etc/runit/runsvdir/default/${s} $TARGETDIR/etc/sv/${s}
-	done
-
-
- 	$CRT find /etc -type f -exec sed -i "s/live/${UserName}/g" {} \;
- 	$CRT find /home/${UserName} -type f -exec sed -i "s/live/${UserName}/g" {} \;
+    $CRT /usr/bin/new_system_setup ${UserName} ${UserPassword}
 
 # 	remove installer from openbox menu and from new install....
  	sed -i "/springlinux-installer/,+1d" $TARGETDIR/home/${UserName}/.config/obmenu-generator/schema.pl
