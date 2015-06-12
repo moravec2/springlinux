@@ -358,7 +358,7 @@ _linux_series=$(XBPS_ARCH=$BASE_ARCH $XBPS_QUERY_CMD -r $ROOTFS ${XBPS_REPOSITOR
 KERNELVERSION=$(XBPS_ARCH=$BASE_ARCH $XBPS_QUERY_CMD -r $ROOTFS ${XBPS_REPOSITORY:=-R} -p pkgver ${_linux_series})
 KERNELVERSION=$($XBPS_UHELPER_CMD getpkgversion $KERNELVERSION)
 
-: ${OUTPUT_FILE="springlinux-rc-${BASE_ARCH}-$(date +%d%m%y).iso"}
+: ${OUTPUT_FILE="springlinux-beta-${BASE_ARCH}-$(date +%d%m%y).iso"}
 
 info_msg "[2/9] Installing software to generate the image: ${REQUIRED_PKGS} ..."
 install_prereqs
