@@ -42,10 +42,11 @@ PARTITIONS_DONE=
 FILESYSTEMS_DONE=
 SYSTEMD_INIT=
 
+
+TARGETDIR=/mnt/target
 # add variable for chroot
 CRT="chroot $TARGETDIR /bin/bash"
 
-TARGETDIR=/mnt/target
 LOG="/tmp/$(basename ${0})_error.log" # old version /dev/tty8
 CONF_FILE=/tmp/.void-installer.conf
 if [ ! -f $CONF_FILE ]; then
@@ -796,7 +797,7 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
             --infobox "Removing temporary packages from target ..." 4 60
         echo "Removing temporary packages from target ..." >$LOG
         xbps-remove -r $TARGETDIR -Ry dialog >>$LOG 2>&1
-        rmdir $TARGETDIR/mnt/target
+        rmdir $TARGETDIR
     else
         # mount required fs
         mount_filesystems
@@ -820,7 +821,8 @@ ${BOLD}Do you want to continue?${RESET}" 20 80 || return
     UserPassword=$(get_option USERPASSWORD)
 # this should be on new install?
 
-    $CRT /usr/bin/new_system_setup ${UserName} ${UserPassword}
+    $CRT /usr/bin/new_system_setup ${UserName}
+	set_userpassword
 
 # 	remove installer from openbox menu and from new install....
  	sed -i "/springlinux-installer/,+1d" $TARGETDIR/home/${UserName}/.config/obmenu-generator/schema.pl
